@@ -1,5 +1,5 @@
-import {categories,cities,conditions,seedCatalog,imageUrl} from './catalog.js';
-import {available,bid,isProCategory,settlement,validateImport} from './engine.js';
+import {categories,cities,conditions,seedCatalog,imageUrl} from './catalog.js?v=mk2';
+import {available,bid,isProCategory,settlement,validateImport} from './engine.js?v=mk2';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const numberText=n=>String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
 const money=n=>{const [whole,fraction]=(Math.abs(n)/100).toFixed(n%100?2:0).split('.');return (n<0?'−':'')+numberText(whole)+(fraction?','+fraction:'')+' €';};
