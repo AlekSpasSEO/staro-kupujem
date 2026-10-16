@@ -1,4 +1,4 @@
-name: Deploy RetroBid preview
+name: Објави staro kupujem
 on:
   push:
     branches: [main]

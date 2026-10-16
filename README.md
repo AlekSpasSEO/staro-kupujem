@@ -1,75 +1,82 @@
-# RetroBid
+# staro kupujem
 
-**Good finds. Great bids.** A responsive auction marketplace inspired by the simple, tactile web of the late 1990s and early 2000s. Built for North Macedonia with EUR auction prices and a $100 USD/year Pro membership concept.
+**Мали огласи. Големи приказни.** Македонски аукциски огласник со скопски и екс-Ју шмек од 80-тите и 90-тите: хартиена позадина, типографија од печатен огласник, ситни фотографии, редови со огласи и илустрација инспирирана од Скопје.
 
-## Current delivery
+[Отвори го огласникот](https://alekspasseo.github.io/staro-kupujem/) · [GitHub](https://github.com/AlekSpasSEO/staro-kupujem)
 
-This is an interactive **sample marketplace**, not a live money service. It starts with **1,000 fictional sample auctions**, generated from curated item templates across Clothing, Home items, Tools, Vehicles, Property, Toys & games, and Furniture. Photos are illustrative Unsplash images. No Reklama5, Pazar3 or Facebook content has been copied. The catalog is marked as sample throughout.
+## Што работи
 
-- Responsive desktop, tablet and phone layouts; compact mobile navigation
-- Search by title, category, subcategory and description
-- Filters for category, subcategory, city, condition, price, delivery and closing time
-- Six sort modes, pagination, grid/list views and saved finds
-- Auction details, minimum bid increments, closing-time checks and full-bid balance reservations
-- Wallet with available/reserved balances and sample credit ledger
-- Pro preview gating **both bidding and selling** in Vehicles and Property
-- Seller listing form with ownership, availability and 30% commission acknowledgment
-- Authorized JSON feed import (up to 1,000 rows), duplicate-source checks, source attribution, permission reference and separate seller confirmation before sample publication
-- Dependency-free Node 24 + SQLite server for persistent, shared sample auctions, isolated browser sessions, atomic bid updates, release of the previous leader's reservation, and sample winner settlement
-- GitHub Pages deployment workflow; Pages runs the browser-local preview
+- 1.000 јасно означени, измислени пример-огласи на македонски
+- Облека, За дома, Алат, Возила, Недвижности, Играчки и игри, Мебел
+- Пребарување со кирилица и латиница: „стол“ и „stol“ ги наоѓаат истите резултати
+- Филтри по категорија, поткатегорија, град, состојба, цена, достава и преостанато време
+- Шест начини на подредување, страници, приказ во редови или мрежа, зачувани огласи
+- Наддавање, минимално зголемување, проверка на крајниот рок и резервација на целиот износ
+- Салдо со расположлив и резервиран износ и историја на пример-промени
+- Про членство за објавување и наддавање во Возила и Недвижности
+- Објавување пример-оглас со потврда за сопственост, достапност и провизија
+- Увоз на JSON со изворна врска, доказ за дозвола и посебна проверка на продавачот пред објавување
+- Посебен Node.js/SQLite сервер со трајни пример-податоци, сесии, атомски понуди и ослободување на резервата кога друг корисник ќе понуди повеќе
 
-## Run
+Ова е функционална **пример-верзија**, без вистински плаќања. Фотографиите од Unsplash се илустративни. Нема преземена содржина од Реклама5, Пазар3 или Фејсбук. Пример-парите немаат парична вредност и пробното Про членство е бесплатно.
 
-Requires Node.js 24 or later. No installation or dependencies needed.
+## Локално стартување
+
+Потребен е Node.js 24 или понов. Нема надворешни зависности.
 
 ```sh
 npm start
 ```
 
-Open http://127.0.0.1:4175. SQLite data lives in `data/retrobid.sqlite` (ignored by Git). `PORT`, `DATA_DIR` and `SECURE_COOKIES=1` can be set through environment variables. The server binds to loopback; place it behind an HTTPS reverse proxy for an internal deployment. Sessions use a random, HttpOnly, SameSite=Strict cookie. The server deliberately provides sample credit and free Pro activation, and must not be used to hold real funds.
-
-For static hosting, serve **`public/`**, never the repository root. The static preview stores sample actions on the visitor's device and never sends account records to an external service. The Node server is not deployed by GitHub Pages or the static Sites preview. Static preview reservations do not simulate other bidders; the Node server supports multiple sessions and releases holds when outbid.
+Отвори http://127.0.0.1:4175. SQLite податоците се во `data/retrobid.sqlite`, исклучени од Git. Поставки преку околината: `PORT`, `DATA_DIR`, `SECURE_COOKIES=1`. Серверот слуша на loopback; за внатрешно хостирање користи HTTPS reverse proxy. Сесијата користи случаен HttpOnly/SameSite=Strict колаче. Ова се прелистувачки пробни идентитети, без вистинска регистрација или обновување сметка.
 
 ```sh
 npm run check
+npm run build
 ```
 
-## Imports
+`npm run check` ја проверува синтаксата и аукциските/серверските правила. `npm run build` ја копира статичката верзија во `dist/`.
 
-Use **Import desk** in the footer to download a JSON template and import an authorized feed. Required fields:
+## GitHub Pages
+
+Главната објава е на **GitHub Pages**. Workflow-от во `.github/workflows/pages.yml` ги извршува проверките и го објавува само `public/` при push на `main`. Изворот во Settings → Pages е GitHub Actions. Не го хостирај коренот на репозиториумот.
+
+На GitHub Pages профилот, пример-салдото и понудите се чуваат само во прелистувачот на посетителот. Node/SQLite серверот не се извршува на Pages. Статичката верзија не симулира други наддавачи; серверската верзија поддржува повеќе сесии и заеднички аукции. Претходниот Sites preview не е главната објава на оваа верзија.
+
+## Увоз
+
+Во „Увоз на огласи“ преземи образец и внеси JSON-низа со најмногу 1.000 огласи / 2 MB:
 
 ```json
 [
   {
-    "title": "Bentwood chair",
+    "title": "Дрвен стол, старо производство",
     "category": "furniture",
-    "subcategory": "Chairs",
+    "subcategory": "Столови",
     "price": 3500,
-    "city": "Skopje",
-    "sourceUrl": "https://example.com/authorized-listing",
-    "permissionReference": "Seller consent reference",
-    "description": "Authorized description",
+    "city": "Скопје",
+    "sourceUrl": "https://example.com/izvoren-oglas",
+    "permissionReference": "Референца за дозвола од продавачот",
+    "description": "Дозволен опис на предметот.",
     "image": "chair"
   }
 ]
 ```
 
-Prices are integer EUR cents. Category IDs: `clothing`, `home`, `tools`, `vehicles`, `property`, `toys`, `furniture`. Importing records does not contact sellers. Review each source, contact the seller outside the app, verify permission and availability, then confirm. Imports and permission references remain private to the importing session. Publication creates a sample auction. Do not include private contact details. There is no unattended scraping or Facebook access in the app.
+Цената е цел број во евроценти. Категориски идентификатори: `clothing`, `home`, `tools`, `vehicles`, `property`, `toys`, `furniture`. Градот, поткатегоријата, состојбата и преземањето користат македонски називи од каталогот.
 
-## Auction rules
+Изворните врски мора да се HTTPS и дупликатите се одбиваат. Увозот не контактира продавачи и не објавува аукции автоматски. Прво провери ја дозволата, контактирај го продавачот надвор од апликацијата, потврди ги достапноста и 30% провизија, па објави пример-аукција. Не внесувај приватни контакт-податоци. Референците за дозвола остануваат во увозната сесија и се изоставени од јавниот каталог на серверот.
 
-The next bid is at least the current price plus 5%, rounded up to a whole euro, with a €1 minimum increment. The full leading bid is reserved; raising your own bid replaces the previous hold. The server releases the previous bidder's hold atomically. Ended auctions reject bids. Sample settlement is lazy on the next API request: the winning hold is deducted once and a 30% commission / 70% seller split is recorded on the auction. No actual seller payout is made. Delivery is separate.
+## Правила за наддавање
 
-## Before live trading
+Минимално зголемување: 5% од тековната цена, заокружено нагоре до цело евро, со минимум 1 €. Целата водечка понуда се резервира. Зголемување на сопствената понуда ја заменува претходната резерва. Серверот атомски ја ослободува резервата на претходниот водечки корисник. По истекот се одбиваат нови понуди. Пример-пресметката се врши еднаш, при следното API барање: победничкиот износ се одзема и се запишува поделба 30% провизија / 70% за продавачот. Нема вистинска исплата.
 
-Connect verified identity and account recovery; replace preview endpoints with verified payment-provider checkout, signed webhooks, an auditable money ledger, payouts and reconciliation; implement paid Pro renewal/cancellation; require seller verification, licensed feeds and actual product photos; add owner roles, moderation, contact workflows, notifications, disputes, cancellation/refunds and operational monitoring. Review applicable marketplace, consumer, payment and property requirements with qualified local support. Current sessions are browser-bound preview identities, not verified customer accounts.
+При конечна цена од 100 €, купувачот плаќа 100 €, продавачот добива 70 €, а огласникот 30 €. Доставата е одделна. Про членството е **100 USD годишно**, одделно од салдото во евра; во оваа верзија се активира бесплатно за проба.
 
-The live 30% fee is modeled as a deduction from seller proceeds. At a €100 final bid, the buyer pays €100, the seller receives €70 and RetroBid retains €30. Pro is priced at **$100 USD per year**, separate from the EUR wallet. No currency conversion or live subscription is implemented.
+## Пред вистинска продажба
 
-## Deploy to GitHub Pages
+Треба да се поврзат проверени сметки и обновување пристап, платежен провајдер со проверени webhooks, ревизорски паричен дневник, исплати и усогласување, платено Про членство со обновување/откажување, улоги за сопственик и модерација, проверка на продавачи, вистински фотографии и дозволени огласи, известувања, поврати и спорови. Тековните пробни endpoints не се наменети за вистински средства.
 
-In the repository's **Settings → Pages**, select **GitHub Actions** as the build source. The included workflow validates source and publishes only `public/` on pushes to `main`. This publishes a sample preview, not the Node/SQLite server. A separate private Sites preview may also be deployed from the same public directory.
+## Структура
 
-## Files
-
-`public/` contains the app, catalog and shared bid rules; `server.mjs` provides the persistent sample API; `test/` contains auction and import invariant tests. Fonts use Google Fonts with local fallbacks; images use Unsplash with graceful fallback text.
+`public/` — македонски интерфејс, каталог и заеднички аукциски правила. `server.mjs` — трајно пример-API. `test/` — проверки на аукции и API. `scripts/build.mjs` — статичка подготовка. Фонтовите имаат системски замени ако Google Fonts не е достапен.

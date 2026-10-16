@@ -12,5 +12,9 @@ test('persistent API enforces balances, releases outbid holds, isolates sessions
  assert.equal((await fetch(origin+'/api/topup',{method:'POST',headers:{origin:'https://evil.example',cookie:cookie1},body:'{}'})).status,403);
  const rows=[{title:'Authorized chair',category:'furniture',subcategory:'Chairs',price:3500,sourceUrl:'https://example.com/authorized-chair',permissionReference:'consent-001'}];const imported=await act(cookie1,'import',{rows});assert.equal(imported.data.imports[0].status,'pending');assert.equal(imported.data.catalog.length,1000);assert.equal((await act(cookie1,'import',{rows})).status,400);
  const confirmed=await act(cookie1,'confirm',{id:imported.data.imports[0].id,permission:true,confirmed:true});assert.equal(confirmed.data.catalog.length,1001);assert.equal(confirmed.data.catalog[0].confirmed,true);
+ assert.equal(confirmed.data.catalog[0].permissionReference,undefined);
+ const sale={title:'Пробен македонски оглас',description:'Сочуван предмет со опис на македонски.',category:'furniture',subcategory:'Столови',price:3500,city:'Скопје',condition:'Добро сочувано',delivery:'Лично преземање',days:7,permission:true,confirmed:true};
+ const published=await act(cookie1,'sell',sale);assert.equal(published.status,200);assert.equal(published.data.catalog[0].city,'Скопје');
+ const proSale={...sale,category:'vehicles',subcategory:'Автомобили'};assert.equal((await act(cookie1,'sell',proSale)).status,400);await act(cookie1,'pro',{});assert.equal((await act(cookie1,'sell',proSale)).status,200);
  assert.equal((await fetch(origin+'/data/retrobid.sqlite')).status,404);assert.equal((await fetch(origin+'/.git/config')).status,404);
 });
