@@ -1,0 +1,16 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {spawn} from 'node:child_process';import {mkdtempSync,rmSync} from 'node:fs';import os from 'node:os';import path from 'node:path';import {fileURLToPath} from 'node:url';
+test('persistent API enforces balances, releases outbid holds, isolates sessions and reviews imports',async t=>{const dir=mkdtempSync(path.join(os.tmpdir(),'retrobid-test-'));const port=16000+Math.floor(Math.random()*20000),origin=`http://127.0.0.1:${port}`;const child=spawn(process.execPath,['server.mjs'],{cwd:fileURLToPath(new URL('../',import.meta.url)),env:{...process.env,PORT:String(port),DATA_DIR:dir},stdio:['ignore','pipe','pipe']});await new Promise((resolve,reject)=>{child.stdout.on('data',()=>resolve());child.once('error',reject);child.once('exit',c=>reject(Error(`Server exited ${c}`)));setTimeout(()=>reject(Error('Server readiness timeout')),10000).unref();});t.after(async()=>{child.kill();await new Promise(r=>child.once('exit',r));rmSync(dir,{recursive:true,force:true});});
+ const first=await fetch(origin+'/api/session');const cookie1=first.headers.get('set-cookie').split(';')[0],u1=await first.json();assert.equal(u1.catalog.length,1000);assert.ok(!cookie1.includes(u1.account.id),'public identity must not expose session credential');const second=await fetch(origin+'/api/session');const cookie2=second.headers.get('set-cookie').split(';')[0];
+ const act=async(cookie,action,p)=>{const r=await fetch(origin+'/api/'+action,{method:'POST',headers:{cookie,origin,'Content-Type':'application/json'},body:JSON.stringify(p)});return {status:r.status,data:await r.json()};};
+ assert.equal((await act(cookie1,'bid',{id:'RB-0001',amount:4000})).status,400);
+ await act(cookie1,'topup',{amount:10000});await act(cookie2,'topup',{amount:10000});
+ const a=await act(cookie1,'bid',{id:'RB-0001',amount:4000});assert.equal(a.data.account.holds['RB-0001'],4000);
+ const b=await act(cookie2,'bid',{id:'RB-0001',amount:4500});assert.equal(b.data.account.holds['RB-0001'],4500);
+ const refreshed=await (await fetch(origin+'/api/session',{headers:{cookie:cookie1}})).json();assert.equal(refreshed.account.holds['RB-0001'],undefined);assert.equal(refreshed.account.balance,10000);
+ const stale=await act(cookie1,'bid',{id:'RB-0001',amount:4000});assert.equal(stale.status,400);
+ assert.equal((await act(cookie1,'bid',{id:'RB-0007',amount:2000000})).status,400);
+ assert.equal((await fetch(origin+'/api/topup',{method:'POST',headers:{origin:'https://evil.example',cookie:cookie1},body:'{}'})).status,403);
+ const rows=[{title:'Authorized chair',category:'furniture',subcategory:'Chairs',price:3500,sourceUrl:'https://example.com/authorized-chair',permissionReference:'consent-001'}];const imported=await act(cookie1,'import',{rows});assert.equal(imported.data.imports[0].status,'pending');assert.equal(imported.data.catalog.length,1000);assert.equal((await act(cookie1,'import',{rows})).status,400);
+ const confirmed=await act(cookie1,'confirm',{id:imported.data.imports[0].id,permission:true,confirmed:true});assert.equal(confirmed.data.catalog.length,1001);assert.equal(confirmed.data.catalog[0].confirmed,true);
+ assert.equal((await fetch(origin+'/data/retrobid.sqlite')).status,404);assert.equal((await fetch(origin+'/.git/config')).status,404);
+});
